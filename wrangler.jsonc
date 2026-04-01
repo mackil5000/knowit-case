@@ -7,7 +7,10 @@
 	"name": "knowit-case",
 	"main": ".open-next/worker.js",
 	"compatibility_date": "2025-10-08",
-	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+	"compatibility_flags": [
+		"nodejs_compat",
+		"global_fetch_strictly_public"
+	],
 	"assets": {
 		"binding": "ASSETS",
 		"directory": ".open-next/assets"
@@ -15,5 +18,13 @@
 	"observability": {
 		"enabled": true
 	},
-	"upload_source_maps": true
+	"upload_source_maps": true,
+	"d1_databases": [
+		{
+			"binding": "books",
+			"database_name": "books",
+			"database_id": "16a17a45-07ca-46c4-a55b-9ebf09624861",
+			"remote": true
+		}
+	]
 }
