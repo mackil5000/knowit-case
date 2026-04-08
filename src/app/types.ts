@@ -5,3 +5,5 @@ export interface Book {
   publish_date: string;
   genre: string;
 }
+
+export type BookInput = Omit<Book, "id">;
