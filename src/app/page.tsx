@@ -1,5 +1,6 @@
 import { getAllBooks } from "./api/books/route";
 import { EditableBookCard } from "./components/editable-book-card";
+import { AddBookForm } from "./components/add-book-form";
 
 export default async function Home() {
   const books = await getAllBooks();
@@ -7,6 +8,7 @@ export default async function Home() {
   return (
     <div className="min-h-screen p-8 pb-20 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <div className="container mx-auto max-w-7xl">
+        <AddBookForm />
         <main className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
           {books.map((book) => (
             <EditableBookCard key={book.id} book={book} />
