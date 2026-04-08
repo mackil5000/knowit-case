@@ -7,7 +7,9 @@ export async function getAllBooks() {
   const { env } = await getCloudflareContext({ async: true });
   const db = env.books;
 
-  const result = await db.prepare("SELECT * FROM books").all<Book>();
+  const result = await db
+    .prepare("SELECT * FROM books ORDER BY id DESC")
+    .all<Book>();
   return result.results;
 }
 export async function GET() {
