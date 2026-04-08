@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { type BookInput, type Book } from "@/app/types";
+import { type Book, bookInputSchema } from "@/app/types";
 
 export async function getAllBooks() {
   const { env } = await getCloudflareContext({ async: true });
@@ -17,8 +17,15 @@ export async function POST(request: NextRequest) {
   const { env } = await getCloudflareContext({ async: true });
   const db = env.books;
 
-  const { title, author, publish_date, genre } =
-    (await request.json()) as BookInput;
+  const parsed = bookInputSchema.safeParse(await request.json());
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: parsed.error.flatten() },
+      { status: 400 },
+    );
+  }
+
+  const { title, author, publish_date, genre } = parsed.data;
 
   const result = await db
     .prepare(
