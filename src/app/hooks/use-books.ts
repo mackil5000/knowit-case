@@ -1,19 +1,10 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { type Book, type BookInput } from "@/app/types";
-
-export function useBooks() {
-  return useQuery<Book[]>({
-    queryKey: ["books"],
-    queryFn: async () => {
-      const res = await fetch("/api/books");
-      if (!res.ok) throw new Error("Failed to fetch books");
-      return res.json();
-    },
-  });
-}
+import { toast } from "sonner";
 
 export function useCreateBook() {
-  const queryClient = useQueryClient();
+  const router = useRouter();
   return useMutation({
     mutationFn: async (book: BookInput) => {
       const res = await fetch("/api/books", {
@@ -24,12 +15,16 @@ export function useCreateBook() {
       if (!res.ok) throw new Error("Failed to create book");
       return res.json();
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["books"] }),
+    onSuccess: () => {
+      router.refresh();
+      toast.success("Book added");
+    },
+    onError: () => toast.error("Failed to add book"),
   });
 }
 
 export function useUpdateBook() {
-  const queryClient = useQueryClient();
+  const router = useRouter();
   return useMutation({
     mutationFn: async ({ id, ...book }: Book) => {
       const res = await fetch(`/api/books/${id}`, {
@@ -40,18 +35,26 @@ export function useUpdateBook() {
       if (!res.ok) throw new Error("Failed to update book");
       return res.json();
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["books"] }),
+    onSuccess: () => {
+      router.refresh();
+      toast.success("Book updated");
+    },
+    onError: () => toast.error("Failed to update book"),
   });
 }
 
 export function useDeleteBook() {
-  const queryClient = useQueryClient();
+  const router = useRouter();
   return useMutation({
     mutationFn: async (id: number) => {
       const res = await fetch(`/api/books/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to delete book");
       return res.json();
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["books"] }),
+    onSuccess: () => {
+      router.refresh();
+      toast.success("Book deleted");
+    },
+    onError: () => toast.error("Failed to delete book"),
   });
 }

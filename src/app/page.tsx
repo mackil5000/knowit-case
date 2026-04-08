@@ -1,19 +1,15 @@
-"use client";
-
-import { useBooks } from "./hooks/use-books";
+import { getAllBooks } from "./api/books/route";
 import { EditableBookCard } from "./components/editable-book-card";
 import { AddBookForm } from "./components/add-book-form";
 
-export default function Home() {
-  const { data: books = [], isLoading } = useBooks();
+export default async function Home() {
+  const books = await getAllBooks();
 
   return (
     <div className="min-h-screen p-8 pb-20 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <div className="container mx-auto max-w-7xl">
         <AddBookForm />
-        {isLoading ? (
-          <p className="text-center text-muted-foreground">Loading books...</p>
-        ) : books.length === 0 ? (
+        {books.length === 0 ? (
           <p className="text-center text-muted-foreground">
             No books yet — add one above!
           </p>
