@@ -1,44 +1,30 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useCreateBook } from "@/app/hooks/use-books";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function AddBookForm() {
-  const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
+  const createBook = useCreateBook();
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setIsSubmitting(true);
+    const formData = new FormData(e.currentTarget);
 
-    const form = e.currentTarget;
-    const formData = new FormData(form);
-    const res = await fetch("/api/books", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title: formData.get("title"),
-        author: formData.get("author"),
-        publish_date: formData.get("publish_date"),
-        genre: formData.get("genre"),
-      }),
-    });
-
-    if (res.ok) {
-      form.reset();
-      router.refresh();
-    }
-    setIsSubmitting(false);
+    createBook.mutate(
+      {
+        title: formData.get("title") as string,
+        author: formData.get("author") as string,
+        publish_date: formData.get("publish_date") as string,
+        genre: formData.get("genre") as string,
+      },
+      { onSuccess: () => formRef.current?.reset() },
+    );
   }
 
   return (
@@ -48,6 +34,7 @@ export function AddBookForm() {
       </CardHeader>
       <CardContent>
         <form
+          ref={formRef}
           onSubmit={handleSubmit}
           className="grid grid-cols-2 gap-4 lg:grid-cols-4"
         >
@@ -68,8 +55,12 @@ export function AddBookForm() {
             <Input id="genre" name="genre" required />
           </div>
           <div className="col-span-2 lg:col-span-4">
-            <Button type="submit" disabled={isSubmitting} className="w-full">
-              {isSubmitting ? "Adding..." : "Add Book"}
+            <Button
+              type="submit"
+              disabled={createBook.isPending}
+              className="w-full"
+            >
+              {createBook.isPending ? "Adding..." : "Add Book"}
             </Button>
           </div>
         </form>

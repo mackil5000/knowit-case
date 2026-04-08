@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   Card,
   CardAction,
@@ -15,32 +14,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DeleteButton } from "./delete-button";
 import { type Book } from "@/app/types";
+import { useUpdateBook } from "@/app/hooks/use-books";
 
 export function EditableBookCard({ book }: { book: Book }) {
-  const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(book.title);
   const [author, setAuthor] = useState(book.author);
-  const [isSaving, setIsSaving] = useState(false);
+  const updateBook = useUpdateBook();
 
-  async function handleSave() {
-    setIsSaving(true);
-    const res = await fetch(`/api/books/${book.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title,
-        author,
-        publish_date: book.publish_date,
-        genre: book.genre,
-      }),
-    });
-
-    if (res.ok) {
-      setIsEditing(false);
-      router.refresh();
-    }
-    setIsSaving(false);
+  function handleSave() {
+    updateBook.mutate(
+      { ...book, title, author },
+      { onSuccess: () => setIsEditing(false) },
+    );
   }
 
   function handleCancel() {
@@ -78,8 +64,12 @@ export function EditableBookCard({ book }: { book: Book }) {
       <CardContent></CardContent>
       <CardFooter className="flex-col gap-2">
         {isEditing ? (
-          <Button className="w-full" disabled={isSaving} onClick={handleSave}>
-            {isSaving ? "Saving..." : "Save"}
+          <Button
+            className="w-full"
+            disabled={updateBook.isPending}
+            onClick={handleSave}
+          >
+            {updateBook.isPending ? "Saving..." : "Save"}
           </Button>
         ) : (
           <DeleteButton bookId={book.id} />

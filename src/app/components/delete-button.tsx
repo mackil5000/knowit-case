@@ -1,30 +1,19 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { useDeleteBook } from "@/app/hooks/use-books";
 
 export function DeleteButton({ bookId }: { bookId: number }) {
-  const router = useRouter();
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  async function handleDelete() {
-    setIsDeleting(true);
-    const res = await fetch(`/api/books/${bookId}`, { method: "DELETE" });
-    if (res.ok) {
-      router.refresh();
-    }
-    setIsDeleting(false);
-  }
+  const deleteBook = useDeleteBook();
 
   return (
     <Button
       variant="destructive"
       className="w-full"
-      disabled={isDeleting}
-      onClick={handleDelete}
+      disabled={deleteBook.isPending}
+      onClick={() => deleteBook.mutate(bookId)}
     >
-      {isDeleting ? "Deleting..." : "Delete"}
+      {deleteBook.isPending ? "Deleting..." : "Delete"}
     </Button>
   );
 }
