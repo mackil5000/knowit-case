@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { type Book, bookInputSchema } from "@/app/types";
+import z from "zod";
 
 export async function getAllBooks() {
   const { env } = await getCloudflareContext({ async: true });
@@ -20,7 +21,7 @@ export async function POST(request: NextRequest) {
   const parsed = bookInputSchema.safeParse(await request.json());
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.flatten() },
+      { error: z.treeifyError(parsed.error) },
       { status: 400 },
     );
   }

@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { bookInputSchema } from "@/app/types";
+import z from "zod";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -12,7 +13,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
   const parsed = bookInputSchema.safeParse(await request.json());
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.flatten() },
+      { error: z.treeifyError(parsed.error) },
       { status: 400 },
     );
   }
