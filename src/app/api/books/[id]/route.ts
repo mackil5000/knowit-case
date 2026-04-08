@@ -32,8 +32,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
   });
 }
 
-export async function DELETE(_request: NextRequest, { params }: Params) {
-  const { id } = await params;
+export async function deleteBookById(id: number) {
   const { env } = await getCloudflareContext({ async: true });
   const db = env.books;
 
@@ -42,7 +41,15 @@ export async function DELETE(_request: NextRequest, { params }: Params) {
     .bind(id)
     .run();
 
-  if (!result.meta.changes) {
+  return result.meta.changes > 0;
+}
+
+export async function DELETE(_request: NextRequest, { params }: Params) {
+  const { id } = await params;
+
+  const deleted = await deleteBookById(Number(id));
+
+  if (!deleted) {
     return NextResponse.json({ error: "Book not found" }, { status: 404 });
   }
 

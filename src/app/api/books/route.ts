@@ -6,11 +6,11 @@ export async function getAllBooks() {
   const { env } = await getCloudflareContext({ async: true });
   const db = env.books;
 
-  const result = await db.prepare("SELECT * FROM books").all<Book[]>();
-  return NextResponse.json(result);
+  const result = await db.prepare("SELECT * FROM books").all<Book>();
+  return result.results;
 }
 export async function GET() {
-  return getAllBooks();
+  return NextResponse.json(await getAllBooks());
 }
 
 export async function POST(request: NextRequest) {
